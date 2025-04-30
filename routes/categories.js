@@ -4,7 +4,7 @@ const Categories = require("../db/models/Categories")
 const Response = require('../lib/Response')
 const Error = require('../lib/Error');
 const CustomError = require('../lib/Error');
-const Enum = require('../config/Enum');
+const Enum = require('../config/enum');
 
 router.get('/', async(req, res, next) =>{
 
@@ -52,7 +52,7 @@ router.post('/update', async (req, res) => {
         if(body.name) updates.name = body.name;
         if(typeof body.is_active === 'boolean') updates.is_active = body.is_active;
 
-        await Categories.updateOne({_id: body._id,}, updates);
+        await Categories.updateOne({_id: body._id}, updates);
 
         res.json(Response.succesResponse({ succes: true }));
 
