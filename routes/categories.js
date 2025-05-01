@@ -63,10 +63,23 @@ router.post('/update', async (req, res) => {
     }
 })
 
-router.delete('/delete', async (req, res) => {
+router.post("/delete", async (req, res) => {
     let body = req.body;
+
+    try {
+        if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, i18n.translate("COMMON.VALIDATION_ERROR_TITLE", req.user.language), i18n.translate("COMMON.FIELD_MUST_BE_FILLED", req.user.language, ["_id"]));
+
+        await Categories.deleteOne({_id: body._id });
+
     
-    
+
+        res.json(Response.succesResponse({ success: true }));
+
+    } catch (error) {
+        let errorResponse = Response.errorResponse(error);
+        res.status(errorResponse.code).json(errorResponse);
+    }
+
 })
 
 module.exports = router;

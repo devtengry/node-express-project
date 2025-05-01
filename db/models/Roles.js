@@ -6,7 +6,6 @@ const schema = mongoose.Schema({
     is_active: {type: Boolean, required: true},
     created_by: {
         type: mongoose.SchemaTypes.ObjectId,
-        required: true,
     },
     
     
