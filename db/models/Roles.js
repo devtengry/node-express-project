@@ -4,7 +4,7 @@ const mongoose = require("mongoose")
 const schema = mongoose.Schema({
     role_name: {type: mongoose.SchemaTypes.String, required: true},
     is_active: {type: Boolean, required: true},
-    createdBy: {
+    created_by: {
         type: mongoose.SchemaTypes.ObjectId,
         required: true,
     },

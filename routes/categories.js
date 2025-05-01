@@ -63,4 +63,10 @@ router.post('/update', async (req, res) => {
     }
 })
 
+router.delete('/delete', async (req, res) => {
+    let body = req.body;
+    
+    
+})
+
 module.exports = router;
