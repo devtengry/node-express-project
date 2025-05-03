@@ -4,6 +4,7 @@ const Roles = require("../db/models/Roles");
 const Response = require('../lib/Response');
 const CustomError = require('../lib/Error');
 const _enum = require('../config/enum');
+const role_priveleges = require("../config/role_priveleges")
 
 router.get("/", async (req, res) => {
   
@@ -80,6 +81,9 @@ router.post("/delete", async (req, res) => {
   }
 })
 
+router.get("/role_priveleges", (req, res)=> {
+  res.json(role_priveleges);
+})
 
 
 module.exports = router;
