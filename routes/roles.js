@@ -4,7 +4,8 @@ const Roles = require("../db/models/Roles");
 const Response = require('../lib/Response');
 const CustomError = require('../lib/Error');
 const _enum = require('../config/enum');
-const role_priveleges = require("../config/role_priveleges")
+const role_priveleges = require("../config/role_priveleges");
+const RolePrivileges = require('../db/models/RolePrivileges');
 
 router.get("/", async (req, res) => {
   
@@ -24,7 +25,13 @@ router.get("/", async (req, res) => {
 router.post("/add", async (req, res) => {
   let body = req.body;
   try {
-    if(!body.role_name) throw new CustomError(_enum.HTTP_CODES.BAD_REQUEST, "Name field must be filled!")
+    if(!body.role_name) throw new CustomError(_enum.HTTP_CODES.BAD_REQUEST,"Validation error", "Name field must be filled!")
+    if (!body.permissions || !Array.isArray(body.permissions) || body.permissions.lenght == 0) {
+      throw new Error(_enum.HTTP_CODES.BAD_REQUEST, "Validation error", "permission must be an array!");
+      
+    };
+
+
     let role = new Roles({
       role_name: body.role_name,
       is_active: true,
@@ -32,6 +39,17 @@ router.post("/add", async (req, res) => {
     });
 
     await role.save();
+
+    for(let i=0; i < body.permissions.lenght; i++){
+      let priveleges = new RolePriveleges({
+        role_id: role._id,
+        permissions: body.permissions[i],
+        created_by: req.user?.id,
+        
+      });
+      await priveleges.save();
+
+    }
 
     res.json(Response.succesResponse({succes: true,}));
 
@@ -47,6 +65,24 @@ router.post("/update", async (req, res) => {
 
 
     if(!body._id) throw new CustomError(_enum.HTTP_CODES.BAD_REQUEST, "ID field must be filled!")
+
+      if (body.permissions && Array.isArray(body.permissions) && body.permissions.lenght > 0) {
+
+        let permissions = await RolePrivileges.find({role_id: body._id,});
+        let removedPermissions = permissions.filter(x => !body.permissions.includes(x.permission));
+        
+        for(let i=0; i < body.permissions.lenght; i++){
+          let priveleges = new RolePrivileges({
+            role_id: role._id,
+            permissions: body.permissions[i],
+            created_by: req.user?.id,
+            
+          });
+          await priveleges.save();
+    
+        }        
+      };
+  
 
     let updates = {};
 
