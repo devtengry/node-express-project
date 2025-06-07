@@ -25,12 +25,15 @@ router.get("/", async (req, res) => {
 router.post("/add", async (req, res) => {
   let body = req.body;
   try {
-    if(!body.role_name) throw new CustomError(_enum.HTTP_CODES.BAD_REQUEST,"Validation error", "Name field must be filled!")
-    if (!body.permissions || !Array.isArray(body.permissions) || body.permissions.lenght == 0) {
-      throw new Error(_enum.HTTP_CODES.BAD_REQUEST, "Validation error", "permission must be an array!");
+    if(!body.role_name) {
+        throw new CustomError(_enum.HTTP_CODES.BAD_REQUEST,"Validation error", "Name field must be filled!");
+    }
       
-    };
-
+    // FIX #1: Correct the typo from "lenght" to "length"
+    // FIX #2: Use "CustomError" for correct error messages
+    if (!body.permissions || !Array.isArray(body.permissions) || body.permissions.length === 0) {
+      throw new CustomError(_enum.HTTP_CODES.BAD_REQUEST, "Validation error", "Permissions must be a non-empty array!");
+    }
 
     let role = new Roles({
       role_name: body.role_name,
@@ -40,50 +43,50 @@ router.post("/add", async (req, res) => {
 
     await role.save();
 
-    for(let i=0; i < body.permissions.lenght; i++){
-      let priveleges = new RolePriveleges({
+    // FIX #1 AGAIN: Correct the typo from "lenght" to "length" in the loop
+    for(let i=0; i < body.permissions.length; i++){
+      let priveleges = new RolePrivileges({
         role_id: role._id,
         permissions: body.permissions[i],
         created_by: req.user?.id,
-        
       });
       await priveleges.save();
-
     }
 
-    res.json(Response.succesResponse({succes: true,}));
+    res.json(Response.succesResponse({succes: true}));
 
   } catch (error) {
-        let errorResponse = Response.errorResponse(error);
+    let errorResponse = Response.errorResponse(error);
     res.status(errorResponse.code).json(errorResponse);
   }
-})
+});
+
 
 router.post("/update", async (req, res) => {
   let body = req.body;
   try {
-
-
     if(!body._id) throw new CustomError(_enum.HTTP_CODES.BAD_REQUEST, "ID field must be filled!")
 
-      if (body.permissions && Array.isArray(body.permissions) && body.permissions.lenght > 0) {
+    // FIX: Corrected typo from "lenght" to "length"
+    if (body.permissions && Array.isArray(body.permissions) && body.permissions.length > 0) {
+      // NOTE: There is a logic issue here. You are not removing old permissions correctly.
+      // This is a simplified fix for the typo.
+      
+      // First, remove existing privileges for this role
+      await RolePrivileges.deleteMany({ role_id: body._id });
 
-        let permissions = await RolePrivileges.find({role_id: body._id,});
-        let removedPermissions = permissions.filter(x => !body.permissions.includes(x.permission));
-        
-        for(let i=0; i < body.permissions.lenght; i++){
-          let priveleges = new RolePrivileges({
-            role_id: role._id,
-            permissions: body.permissions[i],
-            created_by: req.user?.id,
-            
-          });
-          await priveleges.save();
-    
-        }        
-      };
+      // Then, add the new ones
+      // FIX: Corrected typo from "lenght" to "length"
+      for(let i=0; i < body.permissions.length; i++){
+        let priveleges = new RolePrivileges({
+          role_id: body._id, // FIX: use body._id, not role._id which is not defined here
+          permissions: body.permissions[i],
+          created_by: req.user?.id,
+        });
+        await priveleges.save();
+      }        
+    };
   
-
     let updates = {};
 
     if (body.role_name) updates.role_name = body.role_name;
@@ -91,11 +94,9 @@ router.post("/update", async (req, res) => {
 
     await Roles.updateOne({_id: body._id}, updates);
 
-
     res.json(Response.succesResponse({succes: true,}));
-
   } catch (error) {
-        let errorResponse = Response.errorResponse(error);
+    let errorResponse = Response.errorResponse(error);
     res.status(errorResponse.code).json(errorResponse);
   }
 })
