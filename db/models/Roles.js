@@ -25,7 +25,7 @@ class Roles extends mongoose.Model {
         // 'this' refers to the document being removed
         await RolePrivileges.deleteMany({ role_id: this._id }); // Use deleteMany and 'this._id'
 
-        await super.remove(); // Call the super class's remove method
+        await super.remove(); 
     }
 }
 
