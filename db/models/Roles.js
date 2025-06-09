@@ -21,8 +21,7 @@ const schema = mongoose.Schema({
 
 class Roles extends mongoose.Model {
    
-    async remove() { // remove the 'query' parameter as it's not passed when calling instance.remove()
-        // 'this' refers to the document being removed
+    async remove() {
         await RolePrivileges.deleteMany({ role_id: this._id }); // Use deleteMany and 'this._id'
 
         await super.remove(); 
