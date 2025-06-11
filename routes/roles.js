@@ -76,7 +76,6 @@ router.post("/update", async (req, res) => {
       await RolePrivileges.deleteMany({ role_id: body._id });
 
       // Then, add the new ones
-      // FIX: Corrected typo from "lenght" to "length"
       for(let i=0; i < body.permissions.length; i++){
         let priveleges = new RolePrivileges({
           role_id: body._id, // FIX: use body._id, not role._id which is not defined here
