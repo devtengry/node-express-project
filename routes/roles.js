@@ -67,7 +67,6 @@ router.post("/update", async (req, res) => {
   try {
     if(!body._id) throw new CustomError(_enum.HTTP_CODES.BAD_REQUEST, "ID field must be filled!")
 
-    // FIX: Corrected typo from "lenght" to "length"
     if (body.permissions && Array.isArray(body.permissions) && body.permissions.length > 0) {
       // NOTE: There is a logic issue here. You are not removing old permissions correctly.
       // This is a simplified fix for the typo.
